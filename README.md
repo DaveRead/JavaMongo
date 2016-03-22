@@ -21,7 +21,7 @@ For information Dave's MongoDB educational materials: https://www.monead.com/nos
 For information on MongoDB: https://www.mongodb.com/
 
 
-# Running the Default Sample Program
+## Running the Default Sample Program
 
 The project is setup to run using Apache Ant.
 
@@ -29,25 +29,27 @@ The project is setup to run using Apache Ant.
 
 2) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
 
-3) Type the command: ```
+3) Type the command: 
+```
 ant run
 ```
 
 
-# Generating the JavaDoc for the project
+## Generating the JavaDoc for the project
 
 1) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
 
-2) Type the command: ```
+2) Type the command: 
+```
 ant javadoc
 ```
 
-
-# Run the unit tests and review the results (including code coverage)
+## Run the unit tests and review the results (including code coverage)
 
 1) Open a terminal and change your working directory to the project home directory containing the __build.xml__ file
 
-2) Type the command: ```
+2) Type the command: 
+```
 ant test
 ```
 
