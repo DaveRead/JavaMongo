@@ -21,3 +21,37 @@ For information Dave's MongoDB educational materials: https://www.monead.com/nos
 For information on MongoDB: https://www.mongodb.com/
 
 
+# Running the Default Sample Program
+
+The project is setup to run using Apache Ant.
+
+1) Import the sample honeypot data described at [https://monead.com/nosql/]
+
+2) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
+
+3) Type the command: ```
+ant run
+```
+
+
+# Generating the JavaDoc for the project
+
+1) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
+
+2) Type the command: ```
+ant javadoc
+```
+
+
+# Run the unit tests and review the results (including code coverage)
+
+1) Open a terminal and change your working directory to the project home directory containing the __build.xml__ file
+
+2) Type the command: ```
+ant test
+```
+
+3) To view the test results use your browser to open the file: __generated/reports/unit-test/index.html__
+
+4) To view the code coverage results use your browser to open file: __generated/reports/cobertura/index.html__
+
