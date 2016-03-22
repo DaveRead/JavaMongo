@@ -1,0 +1,368 @@
+<!--
+	PiClock build script
+-->
+<project name="MongoDbExamples" default="dist">
+
+	<!-- specify properties in build.properties -->
+	<property file="build.properties" />
+
+	<!-- main build classpath -->
+	<path id="build.class.path">
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- runtime build classpath -->
+	<path id="runtime.class.path">
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- test build classpath -->
+	<path id="test.class.path">
+		<fileset dir="${testLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- generation buildpath -->
+	<path id="gen.class.path">
+		<fileset dir="${genLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- cobertura classpath -->
+	<path id="cobertura.class.path">
+		<fileset dir="${testLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Checkstyle task definition -->
+	<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+         classpath="${testLibDir}/${checkstyleJarFile}"/>
+         
+	<!-- Make project JAR file -->
+	<target name="dist" depends="compile">
+		<jar destfile="${distDir}/${ant.project.name}.jar" basedir="${mainBuildDir}" />
+	</target>
+
+	<!-- Clean out previously built project files and javadoc -->
+	<target name="clean">
+
+		<!-- Deletes the folder containing the packaged final result -->
+		<delete dir="${distDir}" quiet="true" />
+
+		<!-- Deletes the folder containing compiled Java -->
+		<delete dir="${mainBuildDir}" includeemptydirs="true" quiet="true" />
+
+		<!-- remove all generated files -->
+		<delete dir="${genDir}" quiet="true" />
+
+		<!-- remove all compile test Java -->
+		<delete dir="${testBuildDir}" quiet="true" />
+
+	</target>
+
+	<!-- Setup Steps Required Before Compilation -->
+	<target name="init">
+
+		<!-- creates the folder to contain the compiled unit test Java source -->
+		<mkdir dir="${testBuildDir}" />
+
+		<!-- creates the folder to contain the compiled Java source -->
+		<mkdir dir="${mainBuildDir}" />
+
+		<!-- creates the folder to contain the packaged final result (JAR file) -->
+		<mkdir dir="${distDir}" />
+
+		<!-- creates (generated/docs/javadoc) -->
+		<mkdir dir="${genJavadocDir}" />
+
+		<!-- creates (generated/src/main/java) -->
+		<mkdir dir="${genMainJavaSrcDir}" />
+
+		<!-- creates (generated/data/cobertura) -->
+		<mkdir dir="${genCoberturaDataFileDir}" />
+
+		<!-- creates (generated/reports/unit-test/raw-xml) -->
+		<mkdir dir="${genRawUnitTestReportsDir}" />
+
+		<!-- creates (generated/reports/unit-test/formatted) -->
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+
+		<!-- creates (generated/reports/coverage) -->
+		<mkdir dir="${genCoberturaReportsDir}" />
+
+		<!-- creates (generated/instrumented-bin/cobertura) -->
+		<mkdir dir="${genCoberturaInstrumentedClassesDir}" />
+
+		<!-- creates (generated/reports/checkstyle) -->
+		<mkdir dir="${genCheckstyleReportsDir}" />
+
+	</target>
+
+	<!-- compiles java source -->
+	<target name="compile" depends="init">
+		<javac destdir="${mainBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="build.class.path" />
+		</javac>
+		<copydir dest="${mainBuildDir}" src="${mainConfigSrcDir}" />
+		<!-- <copydir dest="${mainBuildDir}" src="${genMainConfigSrcDir}" /> -->
+	</target>
+
+	<target name="clean-gen-src">
+		<delete dir="${genSrcDir}" quiet="true" />
+	</target>
+	
+	<!-- runs the application -->
+	<target name="run" depends="compile">
+		<java classname="${mainClass}" fork="true">
+			<classpath refid="runtime.class.path"/>
+			<classpath>
+				<pathelement location="${mainBuildDir}" />
+			</classpath>
+		</java>	
+	</target>
+
+	<!-- compiles test java source -->
+	<target name="test-compile" depends="compile">
+
+		<javac destdir="${testBuildDir}" deprecation="yes" debug="yes">
+			<src path="${testJavaSrcDir}" />
+			<classpath refid="test.class.path" />
+			<classpath>
+				<pathelement location="${mainBuildDir}" />
+			</classpath>
+		</javac>
+		<copydir dest="${testBuildDir}" src="${testConfigSrcDir}" /> 
+<!--		<copydir dest="${mainBuildDir}" src="${testConfigSrcDir}" forceoverwrite="true" /> -->
+
+	</target>
+	
+	<!-- Make the JavaDoc -->
+	<target name="javadoc" depends="init">
+
+		<!-- generate the javadoc -->
+		<javadoc sourcepath="${mainJavaSrcDir}" packagenames="${javadocPackageNames}" destdir="${genJavadocDir}" Private="yes" >
+			<classpath refid="build.class.path" />		
+		</javadoc>
+	</target>
+
+	<!-- unit test the codebase -->
+	<target name="test" depends="test-compile">
+		<!-- Reset all unit test directories (Delete/Create)-->
+
+		<!-- Delete -->
+		
+		<!-- deletes (generated/reports/unit-test/raw-xml) -->
+		<delete dir="${genRawUnitTestReportsDir}" quiet="true" />
+
+		<!-- deletes (generated/reports/unit-test/formatted) -->
+		<delete dir="${genFormattedUnitTestReportsDir}" quiet="true" />
+
+		<!-- Create -->
+		
+		<!-- creates (generated/reports/unit-test/raw-xml) -->
+		<mkdir dir="${genRawUnitTestReportsDir}" />
+
+		<!-- creates (generated/reports/unit-test/formatted) -->
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+
+		<!-- invoke the "code-coverage-setup" target -->
+		<antcall target="code-coverage-setup" />
+
+		<!-- run all junit tests using instrumented classes -->
+		<junit printsummary="yes" haltonfailure="no" failureproperty="tests.failed" fork="yes" maxmemory="512m">
+		
+			<jvmarg line="-Dlog4j.debug"/>
+			
+			<!-- Specify the name of the coverage data file to use.  The value 
+							 specified below is the default -->
+			<sysproperty key="net.sourceforge.cobertura.datafile" value="${genCoberturaDataFileDir}/${coberturaDataFileName}" />
+
+			<!-- define the classpath for junit to use -->
+			<classpath>
+
+				<!-- put instrumented classes onto the classpath first (the
+									 "cobertura-instrument" task only moves classes over to the
+									 "to-dir" location; interfaces are omitted.  Therefore we
+									 need to add the various output-folders to the classpath so the
+									 interface .class files are also added to the classpath; the
+									 trick is to add the instrumented-classes to the classpath
+									 first so they are loaded instead of the non-instrumented classes.  -->
+				<pathelement location="${genCoberturaInstrumentedClassesDir}" />
+
+				<!-- put the various output-directories onto the classpath for the
+									   sake of the java interfaces (to reiterate the above comment, the only
+									   reason to have these 3 entries is so that the various interfaces
+									   are added to the classpath; the instrumented-classes folder added right
+									   above only puts the "classes" onto the classpath; the cobertura-instrument
+									   task ONLY moves the classes .class files to its "to-dir" location; the
+									   interface .class files are omitted. -->
+
+<!--				<pathelement location="${testConfigSrcDir}" /> -->
+
+				<!-- put JUnit test cases onto the classpath -->
+				<pathelement location="${testBuildDir}" />
+
+				<pathelement location="${mainBuildDir}" />
+
+				<!-- put dependent jar files into the classpath -->
+				<path refid="test.class.path" />
+			</classpath>
+
+			<!-- use the xml formatter -->
+			<formatter type="xml" />
+
+			<!-- execute the tests -->
+			<batchtest fork="yes" todir="${genRawUnitTestReportsDir}">
+				<fileset dir="${testBuildDir}">
+					<include name="**/Test*.class" />
+					<exclude name="**/*$*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<!-- create the formatted unit test results-report -->
+		<junitreport todir="${genFormattedUnitTestReportsDir}">
+			<fileset dir="${genRawUnitTestReportsDir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${genFormattedUnitTestReportsDir}" />
+		</junitreport>
+
+		<!-- create the formatted coverage report -->
+		<antcall target="code-coverage-report" />
+
+		<!-- print alert if one or more tests failed -->
+		<fail if="tests.failed">
+			tests.failed=${tests.failed}
+			****************************************************
+			****************************************************
+			**** One or more tests failed! Check the output ****
+			****************************************************
+			****************************************************
+		</fail>
+	</target>
+	
+	<!-- instrument the codebase for coverage analysis -->
+	<target name="code-coverage-setup">
+		<!-- Reset Cobertura output directories (Delete/Create)-->
+
+		<!-- Delete -->
+		
+		<!-- deletes (generated/data/cobertura) -->
+		<delete dir="${genCoberturaDataFileDir}" quiet="true" />
+
+		<!-- deletes (generated/reports/coverage) -->
+		<delete dir="${genCoberturaReportsDir}" quiet="true" />
+
+		<!-- deletes (generated/instrumented-bin/cobertura) -->
+		<delete dir="${genCoberturaInstrumentedClassesDir}" quiet="true" />
+
+		<!-- Create -->
+		
+		<!-- creates (generated/data/cobertura) -->
+		<mkdir dir="${genCoberturaDataFileDir}" />
+
+		<!-- creates (generated/reports/coverage) -->
+		<mkdir dir="${genCoberturaReportsDir}" />
+
+		<!-- creates (generated/instrumented-bin/cobertura) -->
+		<mkdir dir="${genCoberturaInstrumentedClassesDir}" />
+
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties">
+			<classpath>
+				<path path="${testConfigSrcDir}"/>
+			</classpath>
+		</taskdef>
+
+		<!-- instrument the classes excluding junit test-classes -->
+		<cobertura-instrument todir="${genCoberturaInstrumentedClassesDir}" datafile="${genCoberturaDataFileDir}/${coberturaDataFileName}">
+
+			<fileset dir="${mainBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!-- Generate code coverage report -->
+	<target name="code-coverage-report">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- create the coverage report -->
+		<cobertura-report format="html" datafile="${genCoberturaDataFileDir}/${coberturaDataFileName}" destdir="${genCoberturaReportsDir}">
+
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+	
+	<!-- instrument the codebase for coverage analysis -->
+	<target name="code-coverage-setup-enterprise">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- instrument the classes excluding junit test-classes -->
+		<cobertura-instrument todir="${genCoberturaInstrumentedClassesDir}" datafile="${genCoberturaDataFileDir}/${coberturaDataFileName}">
+
+			<fileset dir="${mainBuildDir}">
+				<include name="edu/skidmore/**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!-- Generate code coverage report -->
+	<target name="code-coverage-report-enterprise">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- create the coverage report -->
+		<cobertura-report format="html" datafile="${genCoberturaDataFileDir}/${coberturaDataFileName}" destdir="${genCoberturaReportsDir}">
+
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="edu/skidmore/**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+	
+	<!-- Generate a checkstyle report -->
+	<target name="checkstyle-report" depends="init">
+		<checkstyle config="${checkstyleConfigFile}" failureProperty="checks.failed" maxWarnings="0" failOnViolation="false">
+  			<fileset dir="${mainJavaSrcDir}" includes="**/*.java"/>
+  			<fileset dir="${testJavaSrcDir}" includes="**/*.java"/>
+  			<formatter type="plain"/>
+  			<formatter type="plain" toFile="${genCheckstyleReportsDir}/${checkstyleTextReportFile}"/>
+  			<formatter type="xml" toFile="${genCheckstyleReportsDir}/${checkstyleXmlReportFile}"/>
+		</checkstyle>
+		
+		<!-- print alert if one or more tests failed -->
+
+		<fail if="checks.failed">
+			checks.failed=${checks.failed}
+			*****************************************************
+			*****************************************************
+			**** One or more checks failed! Check the output ****
+			*****************************************************
+			*****************************************************
+		</fail>
+	</target>
+</project>

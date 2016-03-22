@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle-Configuration: PiClock Check Style Config
+    Description: none    
+-->
+<module name="Checker">
+  <!-- <property name="basedir" value = "src"/> -->
+  <property name="severity" value="warning"/>
+  <module name="TreeWalker">
+    <module name="JavadocMethod">
+      <property name="suppressLoadErrors" value="true"/>
+    </module>
+    <module name="JavadocType"/>
+    <module name="JavadocVariable"/>
+    <module name="JavadocStyle">
+	<property name="checkFirstSentence" value="false"/>
+    </module>
+    <module name="ConstantName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="LocalVariableName"/>
+    <module name="MemberName"/>
+    <module name="MethodName"/>
+    <module name="PackageName"/>
+    <module name="ParameterName"/>
+    <module name="StaticVariableName"/>
+    <module name="TypeName"/>
+    <module name="AvoidStarImport"/>
+    <module name="IllegalImport"/>
+    <module name="RedundantImport"/>
+    <module name="UnusedImports"/>
+    <module name="MethodLength">
+    	<property name="max" value="300"/>
+    </module>
+    <module name="ParameterNumber">
+    	<property name="max" value="9"/>
+    </module>
+    <module name="LineLength">
+      <property name="max" value="100"/>
+    </module>
+    <module name="EmptyForIteratorPad"/>
+    <module name="MethodParamPad"/>
+    <module name="NoWhitespaceBefore"/>
+    <module name="OperatorWrap"/>
+    <module name="ParenPad"/>
+    <module name="TypecastParenPad"/>
+    <module name="WhitespaceAfter"/>
+    <module name="WhitespaceAround"/>
+    <module name="ModifierOrder"/>
+    <module name="RedundantModifier"/>
+    <module name="AvoidNestedBlocks"/>
+    <module name="EmptyBlock"/>
+    <module name="LeftCurly"/>
+    <module name="NeedBraces"/>
+	<module name="RightCurly">
+<!--    	<property name="option" value="alone"/> -->
+	</module>    
+<!-- 	<module name="AvoidInlineConditionals"/> -->
+<!--    <module name="DoubleCheckedLocking"/> -->
+    <module name="EmptyStatement"/>
+    <module name="EqualsHashCode"/>
+    <module name="HiddenField">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="IllegalInstantiation"/>
+    <module name="InnerAssignment"/>
+    <module name="MagicNumber">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <!--
+    	Not sure MissingSwitchDefault is useful since enum-based switches warn you of missing 
+    	cases unless there is a default and there is no checkstyle config to make this apply
+    	to only non-enum-based switch statements. Commenting it out for now. -->
+    <!-- <module name="MissingSwitchDefault"/> -->
+    <module name="DefaultComesLast"/>
+    <module name="RedundantThrows">
+      <property name="severity" value="ignore"/>
+      <property name="suppressLoadErrors" value="true"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+    <module name="DesignForExtension">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="FinalClass">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="HideUtilityClassConstructor"/>
+    <module name="InterfaceIsType"/>
+    <module name="VisibilityModifier"/>
+    <module name="ArrayTypeStyle"/>
+    <module name="FinalParameters">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="TodoComment"/>
+    <module name="UpperEll"/>
+    <module name="LineLength">
+      <property name="max" value="100"/>
+    </module>
+    
+    <!-- To use the Suppression Comment Filter the TreeWalker must include a FileContentsHolder -->    
+    <module name="FileContentsHolder"/>
+  </module>
+
+  <!-- Adding support for the Suppression Comment Filter
+  		This configuration requires that the specific rule
+  		being suppressed is supplied as the first term
+  		of the comment after the constants "CHECKSTYLE.OFF: " and
+  		"CHECKSTYLE.ON: ".  These two comments are used to wrap
+  		any code which should not be checked for the specified
+  		rule.  
+  		e.g. //CHECKSTYLE.OFF ParameterLength
+  		     Some Java source code where the parameterLength rule
+  		     is ignored
+  		     //CHECKSTYLE.ON ParameterLength
+  		would disable checks for the number of parameters
+  		a method takes. -->    
+  <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
+      <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
+      <property name="checkFormat" value="$1"/>
+  </module>      
+
+  <module name="JavadocPackage"/>
+  <module name="NewlineAtEndOfFile">
+    <property name="severity" value="ignore"/>
+    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+  </module>
+  <module name="Translation"/>
+  <module name="FileLength"/>
+  <module name="FileTabCharacter">
+    <property name="severity" value="ignore"/>
+    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+  </module>
+</module>
