@@ -27,9 +27,11 @@ The project is setup to run using Apache Ant.
 
 1) Import the sample honeypot data described at [https://monead.com/nosql/]
 
-2) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
+2) Make sure that __MongoDB__ is running on port __27017__ (the default)
 
-3) Type the command: 
+3) Open a terminal and change your working direcory to the project home directory containing the __build.xml__ file
+
+4) Type the command: 
 ```
 ant run
 ```
